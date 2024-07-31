@@ -60,6 +60,21 @@ class AbstractApp
         return $this->status;
     }
 
+    protected function numRoundRows(array &$target, array $nums, $round = 2): void
+    {
+        foreach ($target as &$el) {
+            $this->numRound($el, $nums, $round);
+        }
+    }
+
+    protected function numRound(array &$target, array $nums, $round = 2): void
+    {
+        foreach ($nums as $num) {
+            if (isset($target[$num])) {
+                $target[$num] = round($target[$num], $round);
+            }
+        }
+    }
 
     protected function httpClient(): Client
     {

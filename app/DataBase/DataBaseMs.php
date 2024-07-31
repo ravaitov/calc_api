@@ -16,7 +16,7 @@ class DataBaseMs extends DataBase
             $conf['password']
         );
         $this->dbh->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-//        $this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
+        $this->dbh->setAttribute( PDO::SQLSRV_ATTR_DIRECT_QUERY, true );
     }
 
 }

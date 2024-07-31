@@ -8,7 +8,7 @@ class CalculationsList extends AbstractApp
 {
     public function run(): void
     {
-        $condition =  ($this->url[1] ?? '') == 'resolved'
+        $condition =  ($this->url[2] ?? '') == 'resolved' // С решением - /calc_list/company/20589/resolved
             ? "AND STATUS IN ('Cогласовано', 'Отказано')"
             : "AND STATUS NOT IN ('Cогласовано', 'Отказано', 'Удален', 'Архив')";
         $res = $this->query($condition);
@@ -17,7 +17,7 @@ class CalculationsList extends AbstractApp
 
     private function query(string $condition): array
     {
-        $comp_id = $this->url[0];
+        $comp_id = $this->url[1];
         return
             $this->baseCalc->query(<<<SQL
             SELECT calculation_name, id, STATUS, updated_at 

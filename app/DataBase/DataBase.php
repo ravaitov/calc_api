@@ -19,7 +19,6 @@ class DataBase
             $conf['password']
         );
         $this->dbh->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-//        $this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
     }
 
     public function handle(): PDO
