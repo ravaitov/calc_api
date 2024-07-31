@@ -5,7 +5,6 @@ namespace App;
 use App\DataBase\DataBase;
 use App\DataBase\DataBaseMs;
 use App\Logger\Logger;
-use App\Result\Result;
 use GuzzleHttp\Client;
 use PDO;
 use stdClass;
@@ -26,10 +25,9 @@ class AbstractApp
     protected int $timeout = 10;
     public array $result = [];
 
-    public function __construct(int $appId = Config::APP_ID)
+    public function __construct()
     {
         $this->config = Config::instance();
-        $this->config->setParam('app_id', $appId);
         $a = explode('\\', get_class($this));
         $this->appName = end($a);
         $this->config->setParam('app_name', $this->appName);
@@ -60,32 +58,19 @@ class AbstractApp
         return $this->status;
     }
 
-    protected function numRoundRows(array &$target, array $nums, $round = 2): void
+    protected function numRoundRows(array &$target, array $nums, $round = 4): void
     {
         foreach ($target as &$el) {
             $this->numRound($el, $nums, $round);
         }
     }
 
-    protected function numRound(array &$target, array $nums, $round = 2): void
+    protected function numRound(array &$target, array $nums, $round = 4): void
     {
         foreach ($nums as $num) {
             if (isset($target[$num])) {
                 $target[$num] = round($target[$num], $round);
             }
         }
-    }
-
-    protected function httpClient(): Client
-    {
-        return new Client([
-            'headers' => [
-                'Authorization' => 'Bearer ' . $this->config->conf('access_token'),
-            ],
-            'base_uri' => $this->config->conf('base_uri'),
-            'timeout' => $this->timeout,
-            'http_errors' => false,
-            'verify' => false
-        ]);
     }
 }

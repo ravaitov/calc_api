@@ -58,30 +58,25 @@ class CurrentSituation extends AbstractApp
 
     private function sum(): void
     {
-        $cnt = $sumInitPrice = $sumResultPrice = $averageDeviation = $vksp = $es =0;
+        $sumInitPrice = $sumResultPrice = $vksp = $es = 0;
         foreach ($this->result['rows'] as $row) {
             $sumInitPrice += $row['Цена по прейскуранту'];
             $sumResultPrice += $row['Итоговая цена'];
             if ($row['Платный'] == 'нет') {
                 continue;
             }
-            $cnt++;
-            $averageDeviation += $row['Отклонение'];
-            $vksp = $vksp ?: $row['ВКСП'];
-            $es = $es ?: $row['ЕС по текущему договору'];
+            $vksp = $vksp ?: round($row['ВКСП'], 4);
+            $es = $es ?: round($row['ЕС по текущему договору'], 4);
         }
-        $averageDeviation /= $cnt;
 
-        $fmt = new \NumberFormatter( 'ru_RU', \NumberFormatter::CURRENCY );
+        $fmt = new \NumberFormatter('ru_RU', \NumberFormatter::CURRENCY);
         $symbol = $fmt->getSymbol(\NumberFormatter::INTL_CURRENCY_SYMBOL);
 
-        $sumInitPrice = $fmt->formatCurrency($sumInitPrice,  $symbol);
-        $sumResultPrice = $fmt->formatCurrency($sumResultPrice,  $symbol);
-        $averageDeviation = round($averageDeviation, 2) . ' %';
-        $this->result['result'] = [
-            'Цена по прейскуранту' => $sumInitPrice,
-            'Итоговая цена' => $sumResultPrice,
-            'Отклонение' => $averageDeviation,
+        $percentDeviation = round(($sumResultPrice - $sumInitPrice) / $sumInitPrice * 100, 2) . ' %';
+        $this->result['total'] = [
+            'Цена по прейскуранту' => $fmt->formatCurrency($sumInitPrice, $symbol),
+            'Итоговая цена' => $fmt->formatCurrency($sumResultPrice, $symbol),
+            'Отклонение' => $percentDeviation,
             'ВКСП' => $vksp,
             'ЕС по текущему договору' => $es,
         ];

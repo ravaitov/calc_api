@@ -13,6 +13,7 @@ $class = [
         'calc_account' => 'CalcAccount',
         'user_name' => 'UserName',
         'current_situation' => 'CurrentSituation',
+        'factor_es' => 'FactorEs',
     ] [$url2] ?? 'ErrorApp';
 
 try {
