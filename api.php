@@ -14,6 +14,7 @@ $class = [
         'user_name' => 'UserName',
         'current_situation' => 'CurrentSituation',
         'factor_es' => 'FactorEs',
+        'prod_list' => 'ProductList',
     ] [$url2] ?? 'ErrorApp';
 
 try {

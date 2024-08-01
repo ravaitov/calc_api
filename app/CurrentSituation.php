@@ -11,6 +11,7 @@ class CurrentSituation extends AbstractApp
         $company_id = $this->url[1];
         $sql = <<<SQL
                     select 'да' as [Платный],
+                    	typeProdukt,
                         numorg_kontr as [Контрагент],
                         ComplREG AS [Комплект],
                         otklonenie as [Отклонение],
@@ -33,6 +34,7 @@ class CurrentSituation extends AbstractApp
                         and ID_B24 = $company_id
                     union
                     select 'нет' as [Платный],
+                    	'' as typeProdukt,
                         numorg_kontr as [Контрагент],
                         ComplREG AS [Комплект],
                         otklonenie as [Отклонение],
@@ -58,12 +60,15 @@ class CurrentSituation extends AbstractApp
 
     private function sum(): void
     {
-        $sumInitPrice = $sumResultPrice = $vksp = $es = 0;
+        $sumCatalogPrice = $sumCatalogPriceDeviation = $sumResultPrice = $vksp = $es = 0;
         foreach ($this->result['rows'] as $row) {
-            $sumInitPrice += $row['Цена по прейскуранту'];
             $sumResultPrice += $row['Итоговая цена'];
+            $sumCatalogPrice += $row['Цена по прейскуранту'];
             if ($row['Платный'] == 'нет') {
                 continue;
+            }
+            if ($row['typeProdukt'] != 'НП') { // не новшество!
+                $sumCatalogPriceDeviation += $row['Цена по прейскуранту'];
             }
             $vksp = $vksp ?: round($row['ВКСП'], 4);
             $es = $es ?: round($row['ЕС по текущему договору'], 4);
@@ -72,9 +77,9 @@ class CurrentSituation extends AbstractApp
         $fmt = new \NumberFormatter('ru_RU', \NumberFormatter::CURRENCY);
         $symbol = $fmt->getSymbol(\NumberFormatter::INTL_CURRENCY_SYMBOL);
 
-        $percentDeviation = round(($sumResultPrice - $sumInitPrice) / $sumInitPrice * 100, 2) . ' %';
+        $percentDeviation = round(($sumResultPrice / $sumCatalogPriceDeviation - 1) * 100, 2) . ' %';
         $this->result['total'] = [
-            'Цена по прейскуранту' => $fmt->formatCurrency($sumInitPrice, $symbol),
+            'Цена по прейскуранту' => $fmt->formatCurrency($sumCatalogPrice, $symbol),
             'Итоговая цена' => $fmt->formatCurrency($sumResultPrice, $symbol),
             'Отклонение' => $percentDeviation,
             'ВКСП' => $vksp,
