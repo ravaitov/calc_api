@@ -5,6 +5,7 @@ namespace App;
 use App\DataBase\DataBase;
 use App\DataBase\DataBaseMs;
 use App\Logger\Logger;
+use App\Rest\RestWH;
 use GuzzleHttp\Client;
 use PDO;
 use stdClass;
@@ -15,6 +16,7 @@ class AbstractApp
     protected DataBase $baseCalc;
     protected DataBase $baseZs;
     protected DataBase $baseMs;
+    protected RestWH $rest;
     protected Logger $logger;
     protected string $appName;
     protected int $status = 400;
@@ -37,6 +39,7 @@ class AbstractApp
         $this->baseZs = new DataBase('db_zs');
         $this->baseMs = new DataBaseMs('db_ms');
         $this->baseMs->handle()->setAttribute( PDO::SQLSRV_ATTR_DIRECT_QUERY, true );
+        $this->rest = new RestWH();
         $this->method = $_SERVER['REQUEST_METHOD'];
         $this->url = array_slice(explode('/', $_SERVER['REQUEST_URI']), 3);
         $json = file_get_contents("php://input") ?? '{}';
@@ -72,5 +75,21 @@ class AbstractApp
                 $target[$num] = round($target[$num], $round);
             }
         }
+    }
+
+    protected function codPrice(int $companyId): int
+    {
+        $reg = 0;
+        $res = $this->rest->call(
+            'crm.address.list',
+            ['FILTER' => ['ENTITY_TYPE_ID' => 4, 'ENTITY_ID' => $companyId]]
+        );
+        foreach ($res as $item) {
+            $reg = mb_stristr($item['PROVINCE'], 'калужск') !== false ? 15 : $reg;
+            $reg = mb_stristr($item['PROVINCE'], 'московск') !== false ? 18 : $reg;
+            if ($reg)
+                break;
+        }
+        return $reg;
     }
 }

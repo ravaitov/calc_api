@@ -4,7 +4,6 @@ namespace App;
 
 use App\Traits\SingletonTrait;
 use App\DataBase\DataBase;
-use Exception;
 
 class Config
 {
@@ -82,7 +81,7 @@ class Config
     public function conf(string $key): array|string|int
     {
         if (!isset($this->conf[$key])) {
-            throw new Exception("Config error! Unknown key='$key'");
+            throw new \Exception("Config error! Unknown key='$key'");
         }
 
         return $this->conf[$key];
@@ -108,7 +107,7 @@ class Config
             $this->conf['stor_dir'] = realpath(__DIR__ . '/../storage/') . DIRECTORY_SEPARATOR;
             $this->loadTokens();
         } catch (\Throwable $t) {
-            throw new Exception("Config init error! " . $t->getMessage());
+            throw new \Exception("Config init error! " . $t->getMessage());
         }
 //        print_r($this->conf);
     }

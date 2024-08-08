@@ -11,7 +11,7 @@ class FactorEs extends AbstractApp
                 ->baseMs
                 ->query("select EC_value from VIEW_RIC037_Spr_ES where ES_month = '$date'")
                 ->fetchAll()[0]['EC_value'] ?? '';
-        $factor = !$factor ? '' : round($factor, 2);
+        $factor = !$factor ? 'NaN' : round($factor, 2);
         $this->result = ['factor_es' => $factor];
     }
 }

@@ -30,7 +30,7 @@ class CurrentSituation extends AbstractApp
                         DOkon [по этап],
                         ES_dog as [ЕС по текущему договору]
                     from VIEW_RIC037_otklonenia_v_schetah_po_distr
-                    where Etap=[dbo].[sf_Ric037_2012_current_etap] ()
+                    where Etap = [dbo].[sf_Ric037_2012_current_etap] ()
                         and ID_B24 = $company_id
                     union
                     select 'нет' as [Платный],
@@ -48,7 +48,7 @@ class CurrentSituation extends AbstractApp
                         DOkon as [по этап],
                         ES_dog as [ЕС по текущему договору]
                     from VIEW_RIC037_otklonenia_v_schetah_po_distr_b24_freeDog
-                    where Etap=[dbo].[sf_Ric037_2012_current_etap] ()
+                    where Etap = [dbo].[sf_Ric037_2012_current_etap] ()
                         and ID_B24 = $company_id
                     order by ComplREG,[Платный],NamProdukt            
                  SQL;

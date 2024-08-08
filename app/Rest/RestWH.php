@@ -2,9 +2,7 @@
 
 namespace App\Rest;
 
-use Exception;
 use GuzzleHttp\Client;
-use App\Exceptions\AppException;
 
 class RestWH
 {
@@ -29,46 +27,6 @@ class RestWH
     public function error(): array
     {
         return $this->error;
-    }
-
-    // наиболее быстрый вариант для count > 50, но не всегда. !!! >= <= - осторожно! Нечисловое поле ($orderedField) - осторожно!
-    public function getBigOrdered(string $method, array $params, bool $orderAsc = true, string $orderedField = 'ID'): array
-    {
-        $this->info = ['method' => $method, 'params' => $params];
-        $start = $orderAsc ? 0 : PHP_INT_MAX;
-        $res = [];
-        $params = array_change_key_case($params, CASE_LOWER);
-        $filter = $params['filter'] ?? [];
-        $filterKey = ($orderAsc ? '>' : '<') . $orderedField;
-        if (isset($filter[$filterKey])) {
-            $start = $filter[$filterKey];
-            if ($orderAsc) {
-                $nextStart = function ($next) use ($start) {
-                    return max($start, $next);
-                };
-            } else {
-                $nextStart = function ($next) use ($start) {
-                    return min($start, $next);
-                };
-            }
-        } else {
-            $nextStart = function (int $next) {
-                return $next;
-            };
-        }
-        $params['start'] = -1;
-
-        while (true) {
-            $filter[$filterKey] = $start;
-            $params['filter'] = $filter;
-            $result = $this->call($method, $params);
-            $res = array_merge($res, $result ?? []);
-            if (count($result) < 50 || $this->error)
-                break;
-            $start = $nextStart(end($result)[$orderedField]);
-        }
-
-        return $res;
     }
 
     public function getBig(string $method, array $params): array
@@ -99,7 +57,7 @@ class RestWH
         $this->total ??= $result['total'] ?? 0;
 
         if ($response->getStatusCode() != 200) {
-            throw new Exception("rest24 error: " . print_r($result, 1));
+            throw new \Exception("rest24 error: " . print_r($result, 1));
         }
         return $result['result'] ?? [];
     }

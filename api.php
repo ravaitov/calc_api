@@ -15,6 +15,9 @@ $class = [
         'current_situation' => 'CurrentSituation',
         'factor_es' => 'FactorEs',
         'prod_list' => 'ProductList',
+        'networking_list' => 'NetworkingList',
+        'get_price' => 'GetPrice',
+        'get_price_vksp' => 'GetPriceVksp',
     ] [$url2] ?? 'ErrorApp';
 
 try {

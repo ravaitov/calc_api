@@ -2,14 +2,11 @@
 
 namespace App;
 
-use App\Rest\RestWH;
-
 class UserName extends AbstractApp
 {
     public function run(): void
     {
-        $rest = new RestWH();
-        $res = $rest->call(
+        $res = $this->rest->call(
             'user.get',
             [
                 'id' => $this->url[0],
