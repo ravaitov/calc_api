@@ -10,7 +10,7 @@ $class = [
         'test' => 'TestApp',
         'calc_list' => 'CalculationsList',
         'company_title' => 'CompanyTitle',
-        'calc_account' => 'CalcAccount',
+//        'calc_account' => 'CalcAccount',
         'user_name' => 'UserName',
         'current_situation' => 'CurrentSituation',
         'factor_es' => 'FactorEs',
@@ -18,6 +18,7 @@ $class = [
         'networking_list' => 'NetworkingList',
         'get_price' => 'GetPrice',
         'get_price_vksp' => 'GetPriceVksp',
+        'calculation' => 'Calculation',
     ] [$url2] ?? 'ErrorApp';
 
 try {

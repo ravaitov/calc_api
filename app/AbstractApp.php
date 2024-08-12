@@ -92,4 +92,18 @@ class AbstractApp
         }
         return $reg;
     }
+
+    protected function assoc2Insert(array $insert): string
+    {
+        $fields =  implode('`,`' , array_keys($insert));
+        $values =  implode("','", array_values($insert));
+
+        return "(`$fields`) values ('$values')";
+    }
+
+    protected function assocUpdate(array $update): string
+    {
+
+    }
+
 }
