@@ -22,10 +22,14 @@ class CurrentSituation extends AbstractApp
                IdeTyp [Тип дистрибутива],
                DOkon [по этап],
                ES_dog as [ЕС по текущему договору],
-               typeProdukt  [тип продукта]
+               typeProdukt  [тип продукта],
+               sum(price_price) over (partition by ID_B24) as sum_price_price,  
+               sum(price_Itog) over (partition by ID_B24) as sum_price_Itog,
+               abs(sum(price_Itog) over (partition by ID_B24)/sum(case when Pri_Bespl='да' and typeProdukt<>'НП'
+                  then price_price else 0 end) over (partition by ID_B24)-1)*100 as sum_otkl
             FROM [RClient4].[dbo].[View_ric037_calc_tek_b24]
-            where ID_B24 = $company_id
-            order by ComplREG,[Платный],NamProdukt
+            where Etap=[dbo].[sf_Ric037_2012_current_etap] ()
+                  and ID_B24=399
         SQL;
 
         $this->result['rows'] = $this->baseMs->query($sql)->fetchAll(PDO::FETCH_ASSOC);
