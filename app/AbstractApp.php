@@ -6,9 +6,7 @@ use App\DataBase\DataBase;
 use App\DataBase\DataBaseMs;
 use App\Logger\Logger;
 use App\Rest\RestWH;
-use GuzzleHttp\Client;
 use PDO;
-use stdClass;
 
 class AbstractApp
 {
@@ -25,6 +23,7 @@ class AbstractApp
     protected string $method;
     protected string $endPoint;
     protected int $timeout = 10;
+    protected array $necessaryGet = [];
     public array $result = [];
 
     public function __construct()
@@ -38,12 +37,13 @@ class AbstractApp
         $this->baseCalc = new DataBase('db_calc');
         $this->baseZs = new DataBase('db_zs');
         $this->baseMs = new DataBaseMs('db_ms');
-        $this->baseMs->handle()->setAttribute( PDO::SQLSRV_ATTR_DIRECT_QUERY, true );
+        $this->baseMs->handle()->setAttribute(PDO::SQLSRV_ATTR_DIRECT_QUERY, true);
         $this->rest = new RestWH();
         $this->method = $_SERVER['REQUEST_METHOD'];
         $this->url = array_slice(explode('/', $_SERVER['REQUEST_URI']), 3);
         $json = file_get_contents("php://input") ?? '{}';
         $this->body = json_decode($json, 1);
+        $this->validate();
     }
 
     public function __destruct()
@@ -59,6 +59,15 @@ class AbstractApp
     public function getStatus(): int
     {
         return $this->status;
+    }
+
+    protected function validate(): void
+    {
+        foreach ($this->necessaryGet as $param) {
+            if (empty($_GET[$param])) {
+                throw new \Exception("Validate! Need param '$param'");
+            }
+        }
     }
 
     protected function numRoundRows(array &$target, array $nums, $round = 4): void
@@ -95,15 +104,19 @@ class AbstractApp
 
     protected function assoc2Insert(array $insert): string
     {
-        $fields =  implode('`,`' , array_keys($insert));
-        $values =  implode("','", array_values($insert));
+        $fields = implode('`,`', array_keys($insert));
+        $values = implode("','", array_values($insert));
 
         return "(`$fields`) values ('$values')";
     }
 
-    protected function assocUpdate(array $update): string
+    protected function assoc2Update(array $update): string
     {
-
+        $result = 'SET ';
+        foreach ($update as $field => $value) {
+            $result .= "`$field`='$value',";
+        }
+        return substr($result, 0, -1);
     }
 
 }

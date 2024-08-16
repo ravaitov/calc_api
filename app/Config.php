@@ -18,7 +18,7 @@ class Config
     const EVENT = 4;
     const DEBUG = 5;
 
-    const LOG_DB = [self::ERROR, self::WARNING, self::IMPORTANT, self::EVENT]; // levels logged into DB
+    const LOG_DB = [self::ERROR, self::WARNING, self::IMPORTANT, self::EVENT];
 
     const APP_ID = 0;
 
@@ -81,7 +81,7 @@ class Config
     public function conf(string $key): array|string|int
     {
         if (!isset($this->conf[$key])) {
-            throw new \Exception("Config error! Unknown key='$key'");
+            throw new \Exception("Config! Unknown key='$key'");
         }
 
         return $this->conf[$key];
@@ -105,16 +105,9 @@ class Config
             $this->conf['log_dir'] = realpath(__DIR__ . '/../log/') . DIRECTORY_SEPARATOR;
             $this->conf['log_file'] = $this->conf['log_dir'] . 'log_%s.txt';
             $this->conf['stor_dir'] = realpath(__DIR__ . '/../storage/') . DIRECTORY_SEPARATOR;
-            $this->loadTokens();
         } catch (\Throwable $t) {
             throw new \Exception("Config init error! " . $t->getMessage());
         }
 //        print_r($this->conf);
-    }
-
-    public function loadTokens(): void
-    {
-//        [$this->conf['access_token'], $this->conf['refresh_token']] =
-//            array_map(fn($i) => trim($i), file($this->conf['tokens']));
     }
 }

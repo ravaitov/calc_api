@@ -19,15 +19,13 @@ $class = [
         'get_price' => 'GetPrice',
         'get_price_vksp' => 'GetPriceVksp',
         'calculation' => 'Calculation',
+        'get_markers' => 'GetMarkers',
     ] [$url2] ?? 'ErrorApp';
 
 try {
     $app = eval("return new App\\$class();");
 } catch (Throwable $t) {
-    Logger::instance()->log("!!!Fatal\n" . $t->getMessage());
-    http_response_code(400);
-    echo "error=" . $t->getMessage();
-    exit();
+    terminateError($t);
 }
 
 try {
@@ -35,7 +33,13 @@ try {
     $app->run();
     echo json_encode($app->result,JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 } catch (Throwable $t) {
+    terminateError($t);
+}
+
+function terminateError(Throwable $t): void
+{
     Logger::instance()->log("!!! Error: " . $t->getMessage());
     http_response_code(400);
     echo '{"error": "'. $t->getMessage().'"}';
+    exit();
 }

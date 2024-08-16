@@ -6,6 +6,8 @@ use PDO;
 
 class GetPrice extends AbstractApp
 {
+    protected array $necessaryGet = ['region', 'month', 'tech_type_id', 'prod_id', 'net_id'];
+
     public function run(): void
     {
         $region = $_GET['region'] == 18 ? 18 : 15; // 15 - Калужская, 18 - Московская

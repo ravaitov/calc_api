@@ -6,6 +6,8 @@ use PDO;
 
 class GetPriceVksp extends AbstractApp
 {
+    protected array $necessaryGet = ['region', 'month', 'tech_type_id', 'prod_id', 'net_id'];
+
     public function run(): void
     {
         $region = $_GET['region'] == 18 ? 18 : 15; // 15 - Калужская, 18 - Московская
@@ -15,7 +17,7 @@ class GetPriceVksp extends AbstractApp
         $techTypeId = $_GET['tech_type_id'];
         $prodId = $_GET['prod_id'];
         $netId = $_GET['net_id'];
-
+        $this->log(print_r($_GET, 1));
         $price = $this->baseMs->query(
             "SELECT dbo.uf_Get_Price2($region, [dbo].[$source] (), 3, $techTypeId, $prodId, $netId)"
         )->fetchAll(PDO::FETCH_NUM)[0][0];

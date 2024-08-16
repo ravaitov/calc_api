@@ -31,6 +31,16 @@ class DataBase
         return $this->dbh->query($query);
     }
 
+    public function exec(string $query):  int|false
+    {
+        return $this->dbh->exec($query);
+    }
+
+    public function lastInsertId():  int|false
+    {
+        return $this->dbh->lastInsertId();
+    }
+
     public function execute(string $queryString, array $params = []): array
     {
         $query = $this->dbh->prepare($queryString);

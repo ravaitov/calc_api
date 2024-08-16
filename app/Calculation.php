@@ -17,6 +17,7 @@ class Calculation extends AbstractApp
                 $this->getCalculation();
                 break;
             case 'POST':
+                $this->body['models'] ??= [];
                 if ($this->calcId) {
                     $this->updateCalculation();
                 } else {
@@ -54,7 +55,7 @@ class Calculation extends AbstractApp
                 action_with_kit
                 from calc_accounts
                 where id = $this->calcId
-                and status != 'Удален'
+                and ifnull(status, 0) != 'Удален'
             SQL
         )->fetchAll(PDO::FETCH_ASSOC)[0];
         if (!$calc) {
@@ -88,15 +89,47 @@ class Calculation extends AbstractApp
 
     private function createCalculation(): void
     {
-        foreach ($this->body['calc'] as $field => $value) {
-
+        $calc = $this->assoc2Insert($this->body['calc']);
+//        $this->log(print_r($this->body, 1));
+        $this->baseCalc->exec("INSERT INTO calc_accounts $calc");
+        $calcId = $this->baseCalc->lastInsertId();
+        if (!$calcId) {
+            throw new \Exception("error calc_accounts insert!");
         }
+//        $this->log("Id=$calcId");
+        foreach ($this->body['models'] as $model) {
+            $this->insertModel($calcId, $model);
+        }
+        $this->result = ['calc_id' => $calcId];
 //        $res = $this->baseCalc->
+    }
+
+    private function insertModel(int $calcId, array $model): void
+    {
+        $model = $this->assoc2Insert($model + ['calc_account_id' => $calcId]);
+        if (!$this->baseCalc->exec("INSERT INTO calc_model $model")) {
+            throw new \Exception("error calc_model insert!");
+        }
     }
 
     private function updateCalculation(): void
     {
-
+        $calc = $this->assoc2Update($this->body['calc']);
+        $this->baseCalc->exec("UPDATE  calc_accounts $calc where id = $this->calcId");
+        foreach ($this->body['models'] as $model) {
+            if (!isset($model['id'])) { //insert
+                $this->insertModel($this->calcId, $model);
+                continue;
+            }
+            $modelId = $model['id'];
+            unset($model['id']);
+            if (!$model) { // delete
+                $this->baseCalc->handle()->exec("DELETE from calc_model where id = $modelId");
+                continue;
+            }
+            $model = $this->assoc2Update($model);
+            $this->baseCalc->exec("UPDATE  calc_model $model where id = $modelId");
+        }
     }
 
     private function deleteCalculation(): void
@@ -104,6 +137,6 @@ class Calculation extends AbstractApp
         $res = $this->baseCalc->handle()->exec(
             "update calc_accounts set status = 'Удален' where id = $this->calcId"
         );
-        $this->result = ['result' => $res ? 'succest' : 'not found'];
+        $this->result = ['result' => $res ? 'success' : 'not found'];
     }
 }

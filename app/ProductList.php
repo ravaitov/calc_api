@@ -10,10 +10,11 @@ class ProductList extends AbstractApp
     {
         $this->result = $this->baseZs->query(<<<SQL
             SELECT distinct 
-                products_id, 
-                product_name, 
-                kodProdukt, 
-                isNews
+                products_id id, 
+                product_name name, 
+                kodProdukt i_s_id, 
+                isNews is_news,
+                prOsnSystem base_system
             from vw_product_tech_condition
             ORDER BY product_name
         SQL
