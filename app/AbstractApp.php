@@ -24,6 +24,45 @@ class AbstractApp
     protected string $endPoint;
     protected int $timeout = 10;
     protected array $necessaryGet = [];
+    protected $latRu = [
+        'kompl_type' => 'Тип дистрибутива',
+        'product' => 'Продукт',
+        'setevitost' => 'сетевитость',
+        'price_by_price' => 'Цена по прейскуранту',
+        'price_by_fact' => 'Цена по факту',
+        'price_total' => 'Итоговая цена',
+        'deviation' => 'Отклонение',
+        'vksp' => 'ВКСП',
+        'es' => 'ЕС',
+        'komplekt' => 'Комплект',
+        'paid' => 'Платный',
+        'typeKontr' => 'Тип котрагента',
+        'es_under_contract' => 'ЕС по текущему договору',
+        'partner' => 'Контрагент',
+        'product_type' => 'тип продукта',
+        'type_company' => 'тип контрагента',
+        'dopostavka' => 'Допоставка',
+        'sumDopostavka' => 'Сумма допоставки',
+        'calculation_name' => 'Название расчета',
+        'month_for_es' => 'Месяц для ЕС',
+        'coeff_for_es' => 'Коэффициент для расчета ЕС',
+        'settlement_period' => 'Расчетный период',
+        'contract_type' => 'Тип договора',
+        'contract_date' => 'Дата договора',
+        'period' => 'Период',
+        'distr_amount' => 'Количество дистрибутивов',
+        'freemounth_amount' => 'Количество бесплатных месяцев',
+        'total_for_period' => 'Итого за период',
+        'month_specification' => 'Месяц начала действия спецификации',
+        'type_fin_condition' => 'Тип финансовых условий',
+        'mounth_count_avance' => 'Количество месяцев аванса',
+        'status' => 'Статус',
+        'otklyuchenie' => 'Отключение',
+        'action_with_kit' => 'Действие с комплектом К+',
+        'statusOrg' => 'Статус компании',
+    ];
+    protected array $ruLat;
+
     public array $result = [];
 
     public function __construct()
@@ -119,4 +158,20 @@ class AbstractApp
         return substr($result, 0, -1);
     }
 
+    protected function latRu(array $source): array
+    {
+        foreach ($source as $key => $item) {
+            $out[$this->latRu[$key] ?? $key] = $item;
+        }
+        return $out;
+    }
+
+    protected function ruLat(array $source): array
+    {
+        $this->ruLat ??= array_flip(array_map(fn($el) => mb_strtoupper($el), $this->latRu));
+        foreach ($source as $key => $item) {
+            $out[$this->ruLat[mb_strtoupper($key)] ?? $key] = $item;
+        }
+        return $out;
+    }
 }

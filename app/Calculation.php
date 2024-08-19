@@ -52,7 +52,9 @@ class Calculation extends AbstractApp
                 sumDopostavka,
                 calculation_name,
                 user_id,
-                action_with_kit
+                action_with_kit,
+                statusOrg,
+                typeKontr
                 from calc_accounts
                 where id = $this->calcId
                 and ifnull(status, 0) != 'Удален'
@@ -71,9 +73,7 @@ class Calculation extends AbstractApp
                 deviation,
                 price_by_fact,
                 vksp,
-                es,
-                nameStatusOrg,
-                typeKontr
+                es
                 from calc_model
                 where calc_account_id = $this->calcId
             SQL
@@ -85,6 +85,10 @@ class Calculation extends AbstractApp
             'calc' => $calc,
             'models' => $withId,
         ];
+        if ($this->url[1]  == 'ru') {
+            $this->result['models'] = array_map(fn($el) => $this->latRu($el), $this->result['models']);
+            $this->result['calc'] = $this->latRu($this->result['calc']);
+        }
     }
 
     private function createCalculation(): void
