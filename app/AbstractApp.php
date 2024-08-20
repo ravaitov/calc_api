@@ -10,6 +10,10 @@ use PDO;
 
 class AbstractApp
 {
+    const SUMM_FACTOR = 60;
+
+    private array $companyB24;
+
     protected Config $config;
     protected DataBase $baseCalc;
     protected DataBase $baseZs;
@@ -19,12 +23,10 @@ class AbstractApp
     protected string $appName;
     protected int $status = 400;
     protected ?array $body;
-    protected array $url;
-    protected string $method;
     protected string $endPoint;
     protected int $timeout = 10;
     protected array $necessaryGet = [];
-    protected $latRu = [
+    protected $latRu = [ //  для переключения ключей лат/рус
         'kompl_type' => 'Тип дистрибутива',
         'product' => 'Продукт',
         'setevitost' => 'сетевитость',
@@ -36,11 +38,10 @@ class AbstractApp
         'es' => 'ЕС',
         'komplekt' => 'Комплект',
         'paid' => 'Платный',
-        'typeKontr' => 'Тип котрагента',
         'es_under_contract' => 'ЕС по текущему договору',
         'partner' => 'Контрагент',
-        'product_type' => 'тип продукта',
-        'type_company' => 'тип контрагента',
+        'product_type' => 'Тип продукта',
+        'comp_type' => 'Тип контрагента',
         'dopostavka' => 'Допоставка',
         'sumDopostavka' => 'Сумма допоставки',
         'calculation_name' => 'Название расчета',
@@ -59,10 +60,12 @@ class AbstractApp
         'status' => 'Статус',
         'otklyuchenie' => 'Отключение',
         'action_with_kit' => 'Действие с комплектом К+',
-        'statusOrg' => 'Статус компании',
+        'comp_status' => 'Статус компании',
     ];
     protected array $ruLat;
 
+    public array $url; // остаток url
+    public string $method; // GET, POST, DELETE
     public array $result = [];
 
     public function __construct()
@@ -173,5 +176,12 @@ class AbstractApp
             $out[$this->ruLat[mb_strtoupper($key)] ?? $key] = $item;
         }
         return $out;
+    }
+
+    protected function getCompanyField(string $field, int $id = 0)
+    {
+        $this->companyB24 ??= $this->rest->call('crm.company.get', ['id' => $id]);
+
+        return $this->companyB24[$field] ?? '';
     }
 }

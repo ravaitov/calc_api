@@ -19,7 +19,6 @@ class CompanyTitle extends AbstractApp
 
     private function getB24(): string
     {
-        $res = $this->rest->call('crm.company.get', ['id' => $this->url[0]]);
-        return $res['TITLE'];
+        return $this->getCompanyField('TITLE', $this->url[0]);
     }
 }

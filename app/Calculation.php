@@ -4,7 +4,7 @@ namespace App;
 
 use PDO;
 
-class Calculation extends AbstractApp
+class Calculation extends CalcDeviation
 {
     private int $calcId;
 
@@ -53,8 +53,8 @@ class Calculation extends AbstractApp
                 calculation_name,
                 user_id,
                 action_with_kit,
-                statusOrg,
-                typeKontr
+                comp_status,
+                comp_type
                 from calc_accounts
                 where id = $this->calcId
                 and ifnull(status, 0) != 'Удален'
@@ -144,3 +144,7 @@ class Calculation extends AbstractApp
         $this->result = ['result' => $res ? 'success' : 'not found'];
     }
 }
+
+/*
+
+*/

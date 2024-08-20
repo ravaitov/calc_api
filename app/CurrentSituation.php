@@ -30,6 +30,10 @@ class CurrentSituation extends CalcDeviation
         SQL;
 
         $this->result['rows'] = $this->baseMs->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+        if (!$this->result['rows']) {
+            $this->result['total'] = 'Нет данных';
+            return;
+        }
         $this->numRoundRows($this->result['rows'], ['Итоговая цена', 'ВКСП', 'Цена по прейскуранту', 'Отклонение']);
         $this->sum();
         if ($this->url[2] == 'lat') {

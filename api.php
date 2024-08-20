@@ -8,18 +8,18 @@ Logger::instance()->echoLog = false;
 $url2 = explode('/', $_SERVER['REQUEST_URI'])[2] ?? '';
 $class = [
         'test' => 'TestApp',
-        'calc_list' => 'CalculationsList',
+        'calc_list' => 'CalculationsList',          // список расчетов, с /resolved - с решением, иначе черновики и тд
         'company_title' => 'CompanyTitle',
 //        'calc_account' => 'CalcAccount',
         'user_name' => 'UserName',
-        'current_situation' => 'CurrentSituation',
-        'factor_es' => 'FactorEs',
-        'prod_list' => 'ProductList',
-        'networking_list' => 'NetworkingList',
+        'current_situation' => 'CurrentSituation',  //Текущая ситуация
+        'factor_es' => 'FactorEs',                  // ЕС
+        'prod_list' => 'ProductList',               // список продуктов (с основными свойствами)
+        'networking_list' => 'NetworkingList',      // сетевитость для продукта
         'get_price' => 'GetPrice',
-        'get_price_vksp' => 'GetPriceVksp',
-        'calculation' => 'Calculation',
-        'get_markers' => 'GetMarkers',
+        'get_price_vksp' => 'GetPriceVksp',         // Получить цену и ВКСП
+        'calculation' => 'Calculation',             // CRUD
+        'get_markers' => 'GetMarkers',              //
     ] [$url2] ?? 'ErrorApp';
 
 try {
