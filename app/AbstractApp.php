@@ -20,12 +20,14 @@ class AbstractApp
     protected DataBase $baseMs;
     protected RestWH $rest;
     protected Logger $logger;
+    protected UtilApp $utils;
     protected string $appName;
     protected int $status = 400;
     protected ?array $body;
     protected string $endPoint;
     protected int $timeout = 10;
     protected array $necessaryGet = [];
+    protected array $isNewsProds;
     protected $latRu = [ //  для переключения ключей лат/рус
         'kompl_type' => 'Тип дистрибутива',
         'product' => 'Продукт',
@@ -81,8 +83,8 @@ class AbstractApp
         $this->baseMs = new DataBaseMs('db_ms');
         $this->baseMs->handle()->setAttribute(PDO::SQLSRV_ATTR_DIRECT_QUERY, true);
         $this->rest = new RestWH();
-        $this->method = $_SERVER['REQUEST_METHOD'];
-        $this->url = array_slice(explode('/', $_SERVER['REQUEST_URI']), 3);
+        $this->method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        $this->url = array_slice(explode('/', $_SERVER['REQUEST_URI'] ?? ''), 3);
         $json = file_get_contents("php://input") ?? '{}';
         $this->body = json_decode($json, 1);
         $this->validate();
@@ -101,6 +103,34 @@ class AbstractApp
     public function getStatus(): int
     {
         return $this->status;
+    }
+
+    /**
+     * получить "отключение" и "допоставка"
+     */
+    public function getAddedDeleted(int $companyId, array $productNetwork = []): array // [['СвАС', 'ОВК-Ф']...]
+    {
+        $res = $this->baseMs->query(<<<SQL
+            SELECT 
+                concat(NamProdukt, '#', flash) unic 
+                FROM [RClient4].[dbo].[View_ric037_calc_tek_b24]
+                where Etap=[dbo].[sf_Ric037_2012_current_etap] ()
+                AND ID_B24=$companyId    
+        SQL
+        )->fetchAll(PDO::FETCH_NUM);
+        foreach ($res as $el) {
+            $current[$el[0]] = true;
+        }
+        foreach ($productNetwork as $el) {
+            $model[implode('#', $el)] = true;
+        }
+        $add = count(array_diff_key($model, $current));
+
+        return [
+            'otklyuchenie' => count(array_diff_key($current, $model)),
+            'dopostavka' =>  $add,
+            'sum' => $add * self::SUMM_FACTOR,
+        ];
     }
 
     protected function validate(): void
@@ -183,5 +213,18 @@ class AbstractApp
         $this->companyB24 ??= $this->rest->call('crm.company.get', ['id' => $id]);
 
         return $this->companyB24[$field] ?? '';
+    }
+
+    protected function isNews(string $prod): bool
+    {
+        if (empty($this->isNewsProds)) {
+            $res = $this->baseZs->query(
+                'SELECT distinct product_name from vw_product_tech_condition  WHERE isNews = 1 ORDER BY product_name'
+            )->fetchAll(PDO::FETCH_NUM);
+            foreach ($res as $item) {
+                $this->isNewsProds[$item] = true;
+            }
+        }
+        return $this->isNewsProds[$prod] ?? false;
     }
 }

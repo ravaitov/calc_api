@@ -4,7 +4,7 @@ namespace App;
 
 use PDO;
 
-class Calculation extends CalcDeviation
+class Calculation extends AbstractApp
 {
     private int $calcId;
 
@@ -145,6 +145,3 @@ class Calculation extends CalcDeviation
     }
 }
 
-/*
-
-*/
