@@ -15,7 +15,7 @@ class Logger
     private LogDataBase $logDataBase;
     private string $prefix = '';
     private int $appId = 0;
-    public bool $echoLog = true;
+    public bool $echoLog = false;
 
     protected function init(): void
     {

@@ -20,6 +20,7 @@ $class = [
         'get_price_vksp' => 'GetPriceVksp',         // Получить цену и ВКСП
         'calculation' => 'Calculation',             // CRUD
         'get_markers' => 'GetMarkers',              //
+        'get_add_del' => 'GetAddDel',
     ] [$url2] ?? 'ErrorApp';
 
 try {

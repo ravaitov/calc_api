@@ -3,12 +3,15 @@
 namespace App;
 
 use PDO;
-use App\Traits\SingletonTrait;
 
 class UtilApp extends AbstractApp
 {
-    use SingletonTrait;
+    private array $prodNews;
+    private array $isBaseProd;
 
+    /**
+     * получить "отключение" и "допоставка"
+     */
     public function getAddedDeleted(int $companyId, array $productNetwork = []): array // [['СвАС', 'ОВК-Ф']...]
     {
         $res = $this->baseMs->query(<<<SQL
@@ -25,10 +28,59 @@ class UtilApp extends AbstractApp
         foreach ($productNetwork as $el) {
             $model[implode('#', $el)] = true;
         }
+        $add = count(array_diff_key($model, $current));
 
         return [
-            'dopostavka' =>  count(array_diff_key($model, $current)),
             'otklyuchenie' => count(array_diff_key($current, $model)),
+            'dopostavka' =>  $add,
+            'sum' => $add * self::SUMM_FACTOR,
         ];
+    }
+
+    public function isNewsProd(string $prod): bool
+    {
+        $this->fillNewsBaseProds();
+
+        return $this->isNewsProds[$prod] ?? false;
+    }
+
+    public function isBaseProd(string $prod): bool
+    {
+        $this->fillNewsBaseProds();
+
+        return $this->isBaseProd[$prod] ?? false;
+    }
+
+    public function companyType(int $companyId): string
+    {
+        $res = $this->baseMs->query(<<<SQL
+           SELECT IDEOrgAll_S1 
+           FROM SprOrgAll_S1 
+           WHERE KodOrgAll_S1 = 
+                 (SELECT KodOrgAll_S1 FROM Org WHERE Num_1 = $companyId) 
+        SQL
+        )->fetchAll(PDO::FETCH_NUM);
+
+        return $res[0][0] ?? '';
+    }
+
+    private function fillNewsBaseProds(): void
+    {
+        if (empty($this->isNewsProds)) {
+            $res = $this->baseZs->query(<<<SQL
+                SELECT distinct 
+                    product_name, 
+                    prOsnSystem,
+                    isNews,
+                    prOsnSystem
+                from vw_product_tech_condition 
+                WHERE isNews = 1 or prOsnSystem = 1
+            SQL
+            )->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($res as $el) {
+                $this->isNewsProds[$el['product_name']] = $el['isNews'] ?: false;
+                $this->isBaseProd[$el['product_name']] = $el['prOsnSystem'] ?: false;
+            }
+        }
     }
 }

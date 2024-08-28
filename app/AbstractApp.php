@@ -63,6 +63,9 @@ class AbstractApp
         'otklyuchenie' => 'Отключение',
         'action_with_kit' => 'Действие с комплектом К+',
         'comp_status' => 'Статус компании',
+        'is_news' => 'Новшество',
+        'is_base' => 'Основная система',
+
     ];
     protected array $ruLat;
 
@@ -103,34 +106,6 @@ class AbstractApp
     public function getStatus(): int
     {
         return $this->status;
-    }
-
-    /**
-     * получить "отключение" и "допоставка"
-     */
-    public function getAddedDeleted(int $companyId, array $productNetwork = []): array // [['СвАС', 'ОВК-Ф']...]
-    {
-        $res = $this->baseMs->query(<<<SQL
-            SELECT 
-                concat(NamProdukt, '#', flash) unic 
-                FROM [RClient4].[dbo].[View_ric037_calc_tek_b24]
-                where Etap=[dbo].[sf_Ric037_2012_current_etap] ()
-                AND ID_B24=$companyId    
-        SQL
-        )->fetchAll(PDO::FETCH_NUM);
-        foreach ($res as $el) {
-            $current[$el[0]] = true;
-        }
-        foreach ($productNetwork as $el) {
-            $model[implode('#', $el)] = true;
-        }
-        $add = count(array_diff_key($model, $current));
-
-        return [
-            'otklyuchenie' => count(array_diff_key($current, $model)),
-            'dopostavka' =>  $add,
-            'sum' => $add * self::SUMM_FACTOR,
-        ];
     }
 
     protected function validate(): void
@@ -215,7 +190,7 @@ class AbstractApp
         return $this->companyB24[$field] ?? '';
     }
 
-    protected function isNews(string $prod): bool
+    protected function isNewsProd(string $prod): bool
     {
         if (empty($this->isNewsProds)) {
             $res = $this->baseZs->query(

@@ -4,7 +4,7 @@ namespace App;
 
 use PDO;
 
-class Calculation extends AbstractApp
+class Calculation extends UtilApp
 {
     private int $calcId;
 
@@ -79,6 +79,8 @@ class Calculation extends AbstractApp
             SQL
         )->fetchAll(PDO::FETCH_ASSOC);
         foreach ($models as $model) {
+            $model['is_news'] = $this->isNewsProd($model['product']);
+            $model['is_base'] = $this->isBaseProd($model['product']);
             $withId[$model['id']] = $model;
         }
         $this->result = [
